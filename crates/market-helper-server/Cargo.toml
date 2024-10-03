@@ -1,0 +1,15 @@
+[package]
+name = "market-helper-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+axum = "0.7"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+serde = "1"
+serde_json = "1"
+
+market-helper-core = { path = "../market-helper-core" }
