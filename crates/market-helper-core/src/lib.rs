@@ -1,15 +1,18 @@
 // TODO: Use units.
 #![allow(dead_code)]
 
+use serde_derive::{Deserialize, Serialize};
+
 #[cfg(test)]
 mod tests;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ItemData {
     name: String,
     price: f64,
     weight: f64,
     nutrition: NutritionalTable,
+    nutrition_prices: NutritionalPrices,
 }
 
 impl ItemData {
@@ -19,21 +22,27 @@ impl ItemData {
         weight: f64,
         nutrition: NutritionalTable,
     ) -> Self {
+        let price_per_gram = price / weight;
+        let nutrition_prices = nutrition.prices(price_per_gram);
         Self {
             name: name.into(),
             price,
             weight,
             nutrition,
+            nutrition_prices,
         }
     }
 
     pub fn prices(&self) -> NutritionalPrices {
-        let price_per_gram = self.price / self.weight;
-        self.nutrition.prices(price_per_gram)
+        self.nutrition_prices
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct NutritionalTable {
     pub portion_weight: f64,
     pub calories: f64,
@@ -65,7 +74,7 @@ impl NutritionalTable {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct NutritionalPrices {
     pub calories: f64,
     pub protein: f64,
