@@ -7,38 +7,49 @@ use serde_derive::{Deserialize, Serialize};
 mod tests;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ItemDescription {
+    pub name: String,
+    pub price: f64,
+    pub weight: f64,
+    pub nutrition: NutritionalTable,
+}
+
+impl ItemDescription {
+    pub fn build(self) -> ItemData {
+        self.into()
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ItemData {
-    name: String,
-    price: f64,
-    weight: f64,
-    nutrition: NutritionalTable,
-    nutrition_prices: NutritionalPrices,
+    pub name: String,
+    pub price: f64,
+    pub weight: f64,
+    pub nutrition: NutritionalTable,
+    pub nutrition_prices: NutritionalPrices,
 }
 
 impl ItemData {
-    pub fn new(
-        name: impl Into<String>,
-        price: f64,
-        weight: f64,
-        nutrition: NutritionalTable,
-    ) -> Self {
-        let price_per_gram = price / weight;
-        let nutrition_prices = nutrition.prices(price_per_gram);
-        Self {
-            name: name.into(),
-            price,
-            weight,
-            nutrition,
-            nutrition_prices,
-        }
-    }
-
     pub fn prices(&self) -> NutritionalPrices {
         self.nutrition_prices
     }
 
     pub fn name(&self) -> &str {
         &self.name
+    }
+}
+
+impl From<ItemDescription> for ItemData {
+    fn from(value: ItemDescription) -> Self {
+        let price_per_gram = value.price / value.weight;
+        let nutrition_prices = value.nutrition.prices(price_per_gram);
+        Self {
+            name: value.name,
+            price: value.price,
+            weight: value.weight,
+            nutrition: value.nutrition,
+            nutrition_prices,
+        }
     }
 }
 
