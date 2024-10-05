@@ -4,7 +4,6 @@ use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::sync::Arc;
 
-use anyhow::Result;
 use axum::http::StatusCode;
 use axum::routing::post;
 use axum::{
@@ -26,7 +25,7 @@ struct AppState {
 }
 
 impl AppState {
-    async fn try_new() -> Result<Self> {
+    async fn try_new() -> anyhow::Result<Self> {
         let connection = SqliteConnectOptions::from_str("sqlite://database/market_helper.db")?
             .journal_mode(SqliteJournalMode::Wal)
             .connect()
@@ -38,7 +37,7 @@ impl AppState {
 }
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
     let app_state = Arc::new(AppState::try_new().await?);
@@ -61,22 +60,28 @@ async fn get_items(State(state): State<Arc<AppState>>) -> Result<Json<Value>, St
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
     };
 
-    let items: Vec<ItemData> = items_rows
+    let items: Value = items_rows
         .iter()
         .map(|row| {
-            ItemDescription {
-                name: row.get("name"),
-                price: row.get("price"),
-                weight: row.get("weight"),
-                nutrition: NutritionalTable {
-                    portion_weight: row.get("portion_weight"),
-                    calories: row.get("calories"),
-                    protein: row.get("protein"),
-                },
-            }
-            .build()
+            Ok(json!({
+                "id": row.get::<u64,_>("id"),
+                "item": serde_json::to_value(
+                    ItemDescription {
+                        name: row.get("name"),
+                        price: row.get("price"),
+                        weight: row.get("weight"),
+                        nutrition: NutritionalTable {
+                            portion_weight: row.get("portion_weight"),
+                            calories: row.get("calories"),
+                            protein: row.get("protein"),
+                        },
+                    }
+                    .build(),
+                )?,
+            }))
         })
-        .collect();
+        .collect::<anyhow::Result<_>>()
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let items_json = serde_json::to_value(items).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     Ok(Json(items_json))
