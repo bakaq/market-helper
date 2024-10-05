@@ -76,6 +76,26 @@ body {
   background-color: pink;
   padding: var(--padding);
   border-radius: var(--padding);
+  display: flex;
+  flex-flow: column nowrap;
+  gap: var(--padding);
+}
+
+.add-form-fields {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.add-form-fields > .field {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+
+.add-form-footer {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
 }
 
 .nutritional-table {

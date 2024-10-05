@@ -75,11 +75,9 @@ function AddForm({ setShow, getItems }) {
   }
 
   const fieldsArray = Object.entries(fields).map(([name, label]) => (
-    <div key={name}>
-      <label>{label}:
-        <input type="text" name={name} onChange={changeHandler} />
-      </label>
-      <br />
+    <div key={name} className="field">
+      <label htmlFor={`add-${name}`}>{label}:</label>
+      <input type="text" id={`add-${name}`} name={name} onChange={changeHandler} />
     </div>
   ));
 
@@ -110,13 +108,16 @@ function AddForm({ setShow, getItems }) {
   }
 
   return (
-    <div className="add-form">
-      <form onSubmit={submitHandler}>
+    <form className="add-form" onSubmit={submitHandler}>
+      <h3>Add item</h3>
+      <div className="add-form-fields">
         {fieldsArray}
+      </div>
+      <div className="add-form-footer">
         <input type="submit" id="submit-add" value="Add item" />
         <button onClick={() => setShow(false)}>Cancel</button>
-      </form>
-    </div>
+      </div>
+    </form>
   );
 }
 
