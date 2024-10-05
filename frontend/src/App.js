@@ -6,6 +6,8 @@ function api_root() {
   return `http://${hostname}:8000`;
 }
 
+const PRECISION = 3;
+
 function App() {
   return (
     <div className="app">
@@ -38,19 +40,21 @@ function ItemList() {
 
   return (
     <div className="item-list">
-      <h2>Items</h2>
-      <button onClick={getItems}>Reload</button>
-      {
-        showAddForm ?
-          <AddForm show={showAddForm} getItems={getItems} /> :
-          <button onClick={() => setShowAddForm(true)}>Add</button>
-      }
+      <div className="item-list-header">
+        <h2>Items</h2>
+        <div>
+          <button onClick={getItems}>Reload</button>
+          { showAddForm || <button onClick={() => setShowAddForm(true)}>Add</button> }
+        </div>
+      </div>
+      { showAddForm && <AddForm setShow={setShowAddForm} getItems={getItems} /> }
       <ul>{itemList}</ul>
     </div>
   );
 }
 
-function AddForm({ getItems }) {
+function AddForm({ setShow, getItems }) {
+  // TODO: Validation.
   const fields = {
     name: "Name",
     weight: "Weight",
@@ -110,51 +114,49 @@ function AddForm({ getItems }) {
       <form onSubmit={submitHandler}>
         {fieldsArray}
         <input type="submit" id="submit-add" value="Add item" />
+        <button onClick={() => setShow(false)}>Cancel</button>
       </form>
     </div>
   );
 }
 
 function ItemCard({ itemData }) {
+  console.log(itemData);
   return (
     <div className="item-card">
-      <ul>
-        <li>Name: {itemData.name}</li>
-        <li>Price: R$ {itemData.price}</li>
-        <li>Weight: {itemData.weight}g</li>
-        <li>
-          Nutrition prices: <NutritionPrices nutritionPrices={itemData.nutrition_prices} />
-        </li>
-        <li>
-          Nutritional table: <NutritionalTable nutrition={itemData.nutrition} />
-        </li>
-      </ul>
-      <button>Edit (TODO)</button>
-      <button>Remove (TODO)</button>
+      <div className="item-card-header">
+        <h3>{itemData.name}</h3>
+        <div className="item-price">R$ {itemData.price.toFixed(2)}</div>
+        <div className="item-weight">{itemData.weight.toPrecision(PRECISION)}g</div>
+      </div>
+      <NutritionalTable nutrition={itemData.nutrition} nutritionPrices={itemData.nutrition_prices}/>
+      <div className="item-card-footer">
+        <button>Edit (TODO)</button>
+        <button>Remove (TODO)</button>
+      </div>
     </div>
   );
 }
 
-function NutritionalTable({ nutrition }) {
+function NutritionalTable({ nutrition, nutritionPrices }) {
   return (
-    <div>
-      <ul>
-        <li>Portion weight: {nutrition.portion_weight}g</li>
-        <li>Calories: {nutrition.calories}g</li>
-        <li>Protein: {nutrition.protein}g</li>
-      </ul>
-    </div>
-  )
-}
-
-function NutritionPrices({ nutritionPrices }) {
-  return (
-    <div>
-      <ul>
-        <li>Calories: {nutritionPrices.calories} g/R$</li>
-        <li>Protein: {nutritionPrices.protein} g/R$</li>
-      </ul>
-    </div>
+    <table className="nutritional-table">
+      <tr>
+        <th></th>
+        <th>Calories</th>
+        <th>Protein</th>
+      </tr>
+      <tr>
+        <th>{nutrition.portion_weight.toPrecision(PRECISION)}g</th>
+        <td>{nutrition.calories.toPrecision(PRECISION)}kcal</td>
+        <td>{nutrition.protein.toPrecision(PRECISION)}g</td>
+      </tr>
+      <tr>
+        <th>Prices</th>
+        <td>{nutritionPrices.calories.toPrecision(PRECISION)}kcal</td>
+        <td>{nutritionPrices.protein.toPrecision(PRECISION)}g</td>
+      </tr>
+    </table>
   )
 }
 

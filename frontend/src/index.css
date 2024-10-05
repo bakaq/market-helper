@@ -31,12 +31,24 @@ body {
   background-color: cyan;
   padding: var(--padding);
   border-radius: var(--padding);
+  display: flex;
+  flex-flow: column nowrap;
+  gap: var(--padding);
 }
 
 .item-list > ul {
   margin: 0;
   padding: 0;
   list-style: none;
+  display: flex;
+  flex-flow: row wrap;
+  gap: var(--padding);
+}
+
+.item-list-header {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
 }
 
 .item-card {
@@ -45,8 +57,34 @@ body {
   border-radius: var(--padding);
 }
 
+.item-card-header {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+
+.item-card-footer {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+}
+
 .add-form {
   background-color: pink;
   padding: var(--padding);
   border-radius: var(--padding);
+}
+
+.nutritional-table {
+  border: 2px solid;
+  border-radius: 3px;
+  border-collapse: collapse;
+}
+
+.nutritional-table > tr > td {
+  border: 1px solid;
+}
+
+.nutritional-table > tr > th {
+  border: 2px solid;
 }
