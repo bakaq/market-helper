@@ -42,10 +42,12 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
     let app_state = Arc::new(AppState::try_new().await?);
+    // TODO: Use the right HTTP methods.
     let app = Router::new()
         .route("/item/get_all", get(get_items))
         .route("/item/add", post(add_item))
         .route("/item/remove", post(remove_item))
+        .route("/item/update", post(update_item))
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
@@ -125,6 +127,46 @@ async fn remove_item(
 
     let mut conn = state.database_connection.lock().await;
     sqlx::query("DELETE FROM items WHERE id = $1;")
+        .bind(request.id)
+        .execute(&mut *conn)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(())
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct UpdateRequest {
+    id: i64,
+    new_item: ItemDescription,
+}
+
+async fn update_item(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<Value>,
+) -> Result<(), StatusCode> {
+    let request: UpdateRequest =
+        serde_json::from_value(body).map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    let mut conn = state.database_connection.lock().await;
+    let query_str = r#"
+        UPDATE items
+        SET
+            name = $1,
+            price = $2,
+            weight = $3,
+            portion_weight = $4,
+            calories = $5,
+            protein = $6
+        WHERE id = $7;
+    "#;
+    sqlx::query(query_str)
+        .bind(request.new_item.name)
+        .bind(request.new_item.price)
+        .bind(request.new_item.weight)
+        .bind(request.new_item.nutrition.portion_weight)
+        .bind(request.new_item.nutrition.calories)
+        .bind(request.new_item.nutrition.protein)
         .bind(request.id)
         .execute(&mut *conn)
         .await
