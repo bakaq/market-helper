@@ -153,21 +153,25 @@ function ItemCard({ itemId, itemData, getItems }) {
 function NutritionalTable({ nutrition, nutritionPrices }) {
   return (
     <table className="nutritional-table">
-      <tr>
-        <th></th>
-        <th>Calories</th>
-        <th>Protein</th>
-      </tr>
-      <tr>
-        <th>{nutrition.portion_weight.toPrecision(PRECISION)}g</th>
-        <td>{nutrition.calories.toPrecision(PRECISION)}kcal</td>
-        <td>{nutrition.protein.toPrecision(PRECISION)}g</td>
-      </tr>
-      <tr>
-        <th>Prices</th>
-        <td>{nutritionPrices.calories.toPrecision(PRECISION)}kcal</td>
-        <td>{nutritionPrices.protein.toPrecision(PRECISION)}g</td>
-      </tr>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Calories</th>
+          <th>Protein</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>{nutrition.portion_weight.toPrecision(PRECISION)}g</th>
+          <td>{nutrition.calories.toPrecision(PRECISION)}kcal</td>
+          <td>{nutrition.protein.toPrecision(PRECISION)}g</td>
+        </tr>
+        <tr>
+          <th>Prices</th>
+          <td>{nutritionPrices.calories.toPrecision(PRECISION)}kcal</td>
+          <td>{nutritionPrices.protein.toPrecision(PRECISION)}g</td>
+        </tr>
+      </tbody>
     </table>
   )
 }
