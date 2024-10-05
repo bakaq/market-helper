@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 
 // TODO: Configure it at build-time
-const API_ROOT = "http://localhost:8000";
+function api_root() {
+  const hostname = window.location.hostname;
+  return `http://${hostname}:8000`;
+}
 
 function App() {
   return (
@@ -16,7 +19,7 @@ function ItemList() {
   const [showAddForm, setShowAddForm] = useState(false);
 
   async function getItems() {
-    const response = await fetch(`${API_ROOT}/item/get_all`, {
+    const response = await fetch(`${api_root()}/item/get_all`, {
       method: "GET",
       headers: { "Accept": "application/json" },
     });
@@ -25,18 +28,7 @@ function ItemList() {
   }
 
   // Get the items on first render.
-  useEffect(() => {
-    async function getItems() {
-      const response = await fetch(`${API_ROOT}/item/get_all`, {
-        method: "GET",
-        headers: { "Accept": "application/json" },
-      });
-      const content = await response.json();
-      setItems(content);
-    }
-
-    getItems();
-  }, []);
+  useEffect(() => { getItems(); }, []);
 
   const itemList = items.map((item) =>
     <li key={item.id}>
@@ -100,7 +92,7 @@ function AddForm({ getItems }) {
         protein: parseFloat(inputs.protein),
       },
     };
-    await fetch(`${API_ROOT}/item/add`, {
+    await fetch(`${api_root()}/item/add`, {
       method: "POST",
       headers: {
         "Accept": "application/json",
