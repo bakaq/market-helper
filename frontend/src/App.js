@@ -34,7 +34,7 @@ function ItemList() {
 
   const itemList = items.map((item) =>
     <li key={item.id}>
-      <ItemCard itemData={item.item} />
+      <ItemCard itemId={item.id} itemData={item.item} getItems={getItems} />
     </li>
   );
 
@@ -44,10 +44,10 @@ function ItemList() {
         <h2>Items</h2>
         <div>
           <button onClick={getItems}>Reload</button>
-          { showAddForm || <button onClick={() => setShowAddForm(true)}>Add</button> }
+          {showAddForm || <button onClick={() => setShowAddForm(true)}>Add</button>}
         </div>
       </div>
-      { showAddForm && <AddForm setShow={setShowAddForm} getItems={getItems} /> }
+      {showAddForm && <AddForm setShow={setShowAddForm} getItems={getItems} />}
       <ul>{itemList}</ul>
     </div>
   );
@@ -120,8 +120,20 @@ function AddForm({ setShow, getItems }) {
   );
 }
 
-function ItemCard({ itemData }) {
-  console.log(itemData);
+function ItemCard({ itemId, itemData, getItems }) {
+  async function removeItem() {
+    if (window.confirm(`Do you really want to delete ${itemData.name}?`)) {
+      await fetch(`${api_root()}/item/remove`, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({id: parseInt(itemId)}),
+      });
+      getItems();
+    }
+  }
   return (
     <div className="item-card">
       <div className="item-card-header">
@@ -129,10 +141,10 @@ function ItemCard({ itemData }) {
         <div className="item-price">R$ {itemData.price.toFixed(2)}</div>
         <div className="item-weight">{itemData.weight.toPrecision(PRECISION)}g</div>
       </div>
-      <NutritionalTable nutrition={itemData.nutrition} nutritionPrices={itemData.nutrition_prices}/>
+      <NutritionalTable nutrition={itemData.nutrition} nutritionPrices={itemData.nutrition_prices} />
       <div className="item-card-footer">
         <button>Edit (TODO)</button>
-        <button>Remove (TODO)</button>
+        <button onClick={() => { removeItem(); }}>Remove</button>
       </div>
     </div>
   );
