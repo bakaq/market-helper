@@ -51,6 +51,12 @@ body {
   justify-content: space-between;
 }
 
+.item-sort {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
 .item-card {
   background-color: lightgreen;
   padding: var(--padding);

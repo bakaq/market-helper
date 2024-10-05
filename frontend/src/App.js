@@ -19,6 +19,8 @@ function App() {
 function ItemList() {
   const [items, setItems] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [sortKey, setSortKey] = useState("name");
+  const [sortDir, setSortDir] = useState("desc");
 
   async function getItems() {
     const response = await fetch(`${api_root()}/item/get_all`, {
@@ -32,7 +34,25 @@ function ItemList() {
   // Get the items on first render.
   useEffect(() => { getItems(); }, []);
 
-  const itemList = items.map((item) =>
+  const sortedItems = items.toSorted((a, b) => {
+    if (sortDir === "asc") {
+      [a, b] = [b, a];
+    }
+    switch (sortKey) {
+      case "name":
+        return a.item.name < b.item.name;
+      case "price":
+        return a.item.price < b.item.price;
+      case "protein-price":
+        return a.item.nutrition_prices.protein < b.item.nutrition_prices.protein;
+      case "calories-price":
+        return a.item.nutrition_prices.calories < b.item.nutrition_prices.calories;
+      default:
+        return a.item.name < b.item.name;
+    }
+  });
+
+  const itemList = sortedItems.map((item) =>
     <li key={item.id}>
       <ItemCard itemId={item.id} itemData={item.item} getItems={getItems} />
     </li>
@@ -42,6 +62,18 @@ function ItemList() {
     <div className="item-list">
       <div className="item-list-header">
         <h2>Items</h2>
+        <div className="item-sort">
+          <select value={sortKey} onChange={(e) => { setSortKey(e.target.value); getItems(); }}>
+            <option value="name">Name</option>
+            <option value="price">Price</option>
+            <option value="protein_price">Protein Price</option>
+            <option value="calories_price">Calorie Price</option>
+          </select>
+          <select value={sortDir} onChange={(e) => { setSortDir(e.target.value); getItems(); }}>
+            <option value="desc">Descending</option>
+            <option value="asc">Ascending</option>
+          </select>
+        </div>
         <div>
           <button onClick={getItems}>Reload</button>
           {showAddForm || <button onClick={() => setShowAddForm(true)}>Add</button>}
@@ -103,8 +135,9 @@ function AddForm({ setShow, getItems }) {
       body: JSON.stringify(itemDescription),
     });
 
-    // Reload the list.
+    // Reload the list and hide form.
     getItems();
+    setShow(false);
   }
 
   return (
@@ -130,7 +163,7 @@ function ItemCard({ itemId, itemData, getItems }) {
           "Accept": "application/json",
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({id: parseInt(itemId)}),
+        body: JSON.stringify({ id: parseInt(itemId) }),
       });
       getItems();
     }
@@ -169,8 +202,8 @@ function NutritionalTable({ nutrition, nutritionPrices }) {
         </tr>
         <tr>
           <th>Prices</th>
-          <td>{nutritionPrices.calories.toPrecision(PRECISION)}kcal</td>
-          <td>{nutritionPrices.protein.toPrecision(PRECISION)}g</td>
+          <td>{nutritionPrices.calories.toPrecision(PRECISION)} kcal/R$</td>
+          <td>{nutritionPrices.protein.toPrecision(PRECISION)} g/R$</td>
         </tr>
       </tbody>
     </table>
