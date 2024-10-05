@@ -47,6 +47,7 @@ function ItemList() {
     <div className="item-list">
       <h2>Items</h2>
       <button onClick={getItems}>Reload</button>
+      <button onClick={getItems}>Add (TODO)</button>
       <ul className="item-list">{itemList}</ul>
     </div>
   );
@@ -60,22 +61,36 @@ function ItemCard({ itemData }) {
         <li>Price: R$ {itemData.price}</li>
         <li>Weight: {itemData.weight}g</li>
         <li>
+          Nutrition prices: <NutritionPrices nutritionPrices={itemData.nutrition_prices} />
+        </li>
+        <li>
           Nutritional table: <NutritionalTable nutrition={itemData.nutrition} />
         </li>
       </ul>
-
+      <button>Edit (TODO)</button>
+      <button>Remove (TODO)</button>
     </div>
   );
 }
 
 function NutritionalTable({ nutrition }) {
-  console.log(nutrition);
   return (
     <div>
       <ul>
         <li>Portion weight: {nutrition.portion_weight}g</li>
         <li>Calories: {nutrition.calories}g</li>
         <li>Protein: {nutrition.protein}g</li>
+      </ul>
+    </div>
+  )
+}
+
+function NutritionPrices({ nutritionPrices }) {
+  return (
+    <div>
+      <ul>
+        <li>Calories: {nutritionPrices.calories} g/R$</li>
+        <li>Protein: {nutritionPrices.protein} g/R$</li>
       </ul>
     </div>
   )
