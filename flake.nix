@@ -28,6 +28,7 @@
         devShells = {
           default = pkgs.mkShell {
             buildInputs = with pkgs; [
+              nodejs
               pkg-config
               sqlite
               sqlx-cli

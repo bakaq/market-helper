@@ -50,7 +50,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/item/update", post(update_item))
         .with_state(app_state);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await?;
     axum::serve(listener, app).await?;
     Ok(())
 }
