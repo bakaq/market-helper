@@ -13,6 +13,7 @@ function App() {
 
 function ItemList() {
   const [items, setItems] = useState([]);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   async function getItems() {
     const response = await fetch(`${API_ROOT}/item/get_all`, {
@@ -23,6 +24,7 @@ function ItemList() {
     setItems(content);
   }
 
+  // Get the items on first render.
   useEffect(() => {
     async function getItems() {
       const response = await fetch(`${API_ROOT}/item/get_all`, {
@@ -36,7 +38,6 @@ function ItemList() {
     getItems();
   }, []);
 
-
   const itemList = items.map((item) =>
     <li key={item.id}>
       <ItemCard itemData={item.item} />
@@ -47,8 +48,77 @@ function ItemList() {
     <div className="item-list">
       <h2>Items</h2>
       <button onClick={getItems}>Reload</button>
-      <button onClick={getItems}>Add (TODO)</button>
-      <ul className="item-list">{itemList}</ul>
+      {
+        showAddForm ?
+          <AddForm show={showAddForm} getItems={getItems} /> :
+          <button onClick={() => setShowAddForm(true)}>Add</button>
+      }
+      <ul>{itemList}</ul>
+    </div>
+  );
+}
+
+function AddForm({ getItems }) {
+  const fields = {
+    name: "Name",
+    weight: "Weight",
+    price: "Price",
+    portionWeight: "Portion weight",
+    calories: "Calories",
+    protein: "Protein",
+  };
+
+  const [inputs, setInputs] = useState({});
+
+  function changeHandler(event) {
+    const name = event.target.name;
+    const value = event.target.value;
+    setInputs(old => ({ ...old, [name]: value }));
+    // Reload the list.
+    getItems();
+  }
+
+  const fieldsArray = Object.entries(fields).map(([name, label]) => (
+    <div key={name}>
+      <label>{label}:
+        <input type="text" name={name} onChange={changeHandler} />
+      </label>
+      <br />
+    </div>
+  ));
+
+  async function submitHandler(event) {
+    event.preventDefault();
+
+    const itemDescription = {
+      name: inputs.name,
+      price: parseFloat(inputs.price),
+      weight: parseFloat(inputs.weight),
+      nutrition: {
+        portion_weight: parseFloat(inputs.portionWeight),
+        calories: parseFloat(inputs.calories),
+        protein: parseFloat(inputs.protein),
+      },
+    };
+    await fetch(`${API_ROOT}/item/add`, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(itemDescription),
+    });
+
+    // Reload the list.
+    getItems();
+  }
+
+  return (
+    <div className="add-form">
+      <form onSubmit={submitHandler}>
+        {fieldsArray}
+        <input type="submit" id="submit-add" value="Add item" />
+      </form>
     </div>
   );
 }

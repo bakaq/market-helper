@@ -28,13 +28,14 @@ body {
 }
 
 .item-list {
-  margin: 0;
   background-color: cyan;
   padding: var(--padding);
   border-radius: var(--padding);
 }
 
 .item-list > ul {
+  margin: 0;
+  padding: 0;
   list-style: none;
 }
 
@@ -44,4 +45,8 @@ body {
   border-radius: var(--padding);
 }
 
-
+.add-form {
+  background-color: pink;
+  padding: var(--padding);
+  border-radius: var(--padding);
+}
