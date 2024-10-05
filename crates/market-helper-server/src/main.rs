@@ -12,6 +12,7 @@ use axum::{
     routing::get,
     Json, Router,
 };
+use serde::{Deserialize, Serialize};
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode};
 use sqlx::{ConnectOptions, Row, SqliteConnection};
 use tokio::sync::Mutex;
@@ -44,6 +45,7 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         .route("/item/get_all", get(get_items))
         .route("/item/add", post(add_item))
+        .route("/item/remove", post(remove_item))
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
@@ -102,6 +104,28 @@ async fn add_item(
         .bind(item_desc.nutrition.portion_weight)
         .bind(item_desc.nutrition.calories)
         .bind(item_desc.nutrition.protein)
+        .execute(&mut *conn)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(())
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct RemoveRequest {
+    id: i64,
+}
+
+async fn remove_item(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<Value>,
+) -> Result<(), StatusCode> {
+    let request: RemoveRequest =
+        serde_json::from_value(body).map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    let mut conn = state.database_connection.lock().await;
+    sqlx::query("DELETE FROM items WHERE id = $1;")
+        .bind(request.id)
         .execute(&mut *conn)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
