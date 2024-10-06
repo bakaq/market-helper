@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::sync::Arc;
 
-use axum::http::StatusCode;
+use axum::http::{Method, StatusCode};
 use axum::routing::post;
 use axum::{
     extract::State,
@@ -12,6 +12,7 @@ use axum::{
     routing::get,
     Json, Router,
 };
+use tower_http::cors::{Any,CorsLayer};
 use serde::{Deserialize, Serialize};
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode};
 use sqlx::{ConnectOptions, Row, SqliteConnection};
@@ -43,12 +44,18 @@ async fn main() -> anyhow::Result<()> {
 
     let app_state = Arc::new(AppState::try_new().await?);
     // TODO: Use the right HTTP methods.
+    
+    let cors = CorsLayer::new()
+        .allow_methods([Method::GET, Method::POST])
+        .allow_origin(Any);
+
     let app = Router::new()
         .route("/item/get_all", get(get_items))
         .route("/item/add", post(add_item))
         .route("/item/remove", post(remove_item))
         .route("/item/update", post(update_item))
-        .with_state(app_state);
+        .with_state(app_state)
+        .layer(cors);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await?;
     axum::serve(listener, app).await?;

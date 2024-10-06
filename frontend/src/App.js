@@ -43,9 +43,9 @@ function ItemList() {
         return a.item.name < b.item.name;
       case "price":
         return a.item.price < b.item.price;
-      case "protein-price":
+      case "protein_price":
         return a.item.nutrition_prices.protein < b.item.nutrition_prices.protein;
-      case "calories-price":
+      case "calories_price":
         return a.item.nutrition_prices.calories < b.item.nutrition_prices.calories;
       default:
         return a.item.name < b.item.name;

@@ -79,8 +79,9 @@ impl NutritionalTable {
 
     pub fn prices(&self, price_per_gram: f64) -> NutritionalPrices {
         NutritionalPrices {
-            calories: self.calories / self.portion_weight * price_per_gram,
-            protein: self.protein / self.portion_weight * price_per_gram,
+            calories: self.calories / self.portion_weight / price_per_gram,
+            //         g                    g                 R$/g
+            protein: self.protein / self.portion_weight / price_per_gram,
         }
     }
 }
