@@ -119,3 +119,30 @@ body {
 .nutritional-table th {
   border: 2px solid;
 }
+
+.edit-form {
+  background-color: deepskyblue;
+  padding: var(--padding);
+  border-radius: var(--padding);
+  display: flex;
+  flex-flow: column nowrap;
+  gap: var(--padding);
+}
+
+.edit-form-fields {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.edit-form-fields > .field {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  gap: var(--padding);
+}
+
+.edit-form-footer {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+}

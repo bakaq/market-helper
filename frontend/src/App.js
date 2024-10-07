@@ -8,6 +8,16 @@ function api_root() {
 
 const PRECISION = 3;
 
+const fields = {
+  name: "Name",
+  weight: "Weight",
+  price: "Price",
+  portionWeight: "Portion weight",
+  calories: "Calories",
+  protein: "Protein",
+};
+
+
 function App() {
   return (
     <div className="app">
@@ -87,23 +97,12 @@ function ItemList() {
 
 function AddForm({ setShow, getItems }) {
   // TODO: Validation.
-  const fields = {
-    name: "Name",
-    weight: "Weight",
-    price: "Price",
-    portionWeight: "Portion weight",
-    calories: "Calories",
-    protein: "Protein",
-  };
-
   const [inputs, setInputs] = useState({});
 
   function changeHandler(event) {
     const name = event.target.name;
     const value = event.target.value;
     setInputs(old => ({ ...old, [name]: value }));
-    // Reload the list.
-    getItems();
   }
 
   const fieldsArray = Object.entries(fields).map(([name, label]) => (
@@ -155,6 +154,8 @@ function AddForm({ setShow, getItems }) {
 }
 
 function ItemCard({ itemId, itemData, getItems }) {
+  const [editing, setEditing] = useState(false);
+
   async function removeItem() {
     if (window.confirm(`Do you really want to delete ${itemData.name}?`)) {
       await fetch(`${api_root()}/item/remove`, {
@@ -169,20 +170,93 @@ function ItemCard({ itemId, itemData, getItems }) {
     }
   }
   return (
-    <div className="item-card">
-      <div className="item-card-header">
-        <h3>{itemData.name}</h3>
-        <div className="item-price">R$ {itemData.price.toFixed(2)}</div>
-        <div className="item-weight">{itemData.weight.toPrecision(PRECISION)}g</div>
-      </div>
-      <NutritionalTable nutrition={itemData.nutrition} nutritionPrices={itemData.nutrition_prices} />
-      <div className="item-card-footer">
-        <button>Edit (TODO)</button>
-        <button onClick={() => { removeItem(); }}>Remove</button>
-      </div>
-    </div>
+    editing ?
+      <ItemEdit itemId={itemId} itemData={itemData} getItems={getItems} setEditing={setEditing} />
+      :
+      (
+        <div className="item-card">
+          <div className="item-card-header">
+            <h3>{itemData.name}</h3>
+            <div className="item-price">R$ {itemData.price.toFixed(2)}</div>
+            <div className="item-weight">{itemData.weight.toPrecision(PRECISION)}g</div>
+          </div>
+          <NutritionalTable nutrition={itemData.nutrition} nutritionPrices={itemData.nutrition_prices} />
+          <div className="item-card-footer">
+            <button onClick={() => setEditing(true)}>Edit</button>
+            <button onClick={() => { removeItem(); }}>Remove</button>
+          </div>
+        </div>
+      )
   );
 }
+
+function ItemEdit({ itemId, itemData, getItems, setEditing }) {
+  const defaultInputs = {
+    name: itemData.name,
+    price: itemData.price,
+    weight: itemData.weight,
+    portionWeight: itemData.nutrition.portion_weight,
+    calories: itemData.nutrition.calories,
+    protein: itemData.nutrition.protein,
+  };
+  const [inputs, setInputs] = useState(defaultInputs);
+
+  function changeHandler(event) {
+    const name = event.target.name;
+    const value = event.target.value;
+    setInputs(old => ({ ...old, [name]: value }));
+  }
+
+  const fieldsArray = Object.entries(fields).map(([name, label]) => (
+    <div key={name} className="field">
+      <label htmlFor={`edit-${name}`}>{label}:</label>
+      <input type="text" id={`edit-${name}`} name={name} value={inputs[name]} onChange={changeHandler} />
+    </div>
+  ));
+
+  async function submitHandler(event) {
+    event.preventDefault();
+
+    const updateRequest = {
+      id: itemId,
+      new_item: {
+        name: inputs.name,
+        price: parseFloat(inputs.price),
+        weight: parseFloat(inputs.weight),
+        nutrition: {
+          portion_weight: parseFloat(inputs.portionWeight),
+          calories: parseFloat(inputs.calories),
+          protein: parseFloat(inputs.protein),
+        },
+      }
+    };
+    await fetch(`${api_root()}/item/update`, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(updateRequest),
+    });
+
+    // Reload the list and hide form.
+    setEditing(false);
+    getItems();
+  }
+
+  return (
+    <form className="edit-form" onSubmit={submitHandler}>
+      <div className="edit-form-fields">
+        {fieldsArray}
+      </div>
+      <div className="edit-form-footer">
+        <input type="submit" id="submit-edit" value="Update item" />
+        <button onClick={() => setEditing(false)}>Cancel</button>
+      </div>
+    </form>
+  );
+}
+
 
 function NutritionalTable({ nutrition, nutritionPrices }) {
   return (
