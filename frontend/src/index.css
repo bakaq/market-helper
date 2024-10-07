@@ -79,6 +79,7 @@ body {
 }
 
 .add-form {
+  width: fit-content;
   background-color: pink;
   padding: var(--padding);
   border-radius: var(--padding);
@@ -96,6 +97,7 @@ body {
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
+  gap: var(--padding);
 }
 
 .add-form-footer {
