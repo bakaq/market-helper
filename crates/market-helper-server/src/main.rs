@@ -20,6 +20,7 @@ use tower_http::cors::{Any, CorsLayer};
 
 use market_helper_core::{ItemData, ItemDescription, NutritionalTable};
 use serde_json::{json, Value};
+use tower_http::trace::TraceLayer;
 
 #[derive(Debug, Clone)]
 struct AppState {
@@ -55,7 +56,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/item/remove", post(remove_item))
         .route("/item/update", post(update_item))
         .with_state(app_state)
-        .layer(cors);
+        .layer(cors)
+        .layer(TraceLayer::new_for_http());
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await?;
     axum::serve(listener, app).await?;
@@ -68,6 +70,7 @@ async fn get_items(State(state): State<Arc<AppState>>) -> Result<Json<Value>, St
         sqlx::query("SELECT * FROM items;")
             .fetch_all(&mut *conn)
             .await
+            .inspect_err(|x| tracing::info!("{:?}", x))
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
     };
 
@@ -84,7 +87,11 @@ async fn get_items(State(state): State<Arc<AppState>>) -> Result<Json<Value>, St
                         nutrition: NutritionalTable {
                             portion_weight: row.get("portion_weight"),
                             calories: row.get("calories"),
+                            carbohidrates: row.get("carbohidrates"),
                             protein: row.get("protein"),
+                            total_fat: row.get("total_fat"),
+                            saturated_fat: row.get("saturated_fat"),
+                            fiber: row.get("fiber"),
                         },
                     }
                     .build(),
@@ -106,13 +113,21 @@ async fn add_item(
         serde_json::from_value(body).map_err(|_| StatusCode::BAD_REQUEST)?;
 
     let mut conn = state.database_connection.lock().await;
-    sqlx::query("INSERT INTO items VALUES (NULL, $1, $2, $3, $4, $5, $6);")
+    let query = r#"
+        INSERT INTO items
+        VALUES (NULL, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+    "#;
+    sqlx::query(query)
         .bind(item_desc.name)
         .bind(item_desc.price)
         .bind(item_desc.weight)
         .bind(item_desc.nutrition.portion_weight)
         .bind(item_desc.nutrition.calories)
+        .bind(item_desc.nutrition.carbohidrates)
         .bind(item_desc.nutrition.protein)
+        .bind(item_desc.nutrition.total_fat)
+        .bind(item_desc.nutrition.saturated_fat)
+        .bind(item_desc.nutrition.fiber)
         .execute(&mut *conn)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -164,8 +179,12 @@ async fn update_item(
             weight = $3,
             portion_weight = $4,
             calories = $5,
-            protein = $6
-        WHERE id = $7;
+            carbohidrates = $6,
+            protein = $7
+            total_fat = $8
+            saturated_fat = $9
+            fiber = $10
+        WHERE id = $11;
     "#;
     sqlx::query(query_str)
         .bind(request.new_item.name)
@@ -173,7 +192,11 @@ async fn update_item(
         .bind(request.new_item.weight)
         .bind(request.new_item.nutrition.portion_weight)
         .bind(request.new_item.nutrition.calories)
+        .bind(request.new_item.nutrition.carbohidrates)
         .bind(request.new_item.nutrition.protein)
+        .bind(request.new_item.nutrition.total_fat)
+        .bind(request.new_item.nutrition.saturated_fat)
+        .bind(request.new_item.nutrition.fiber)
         .bind(request.id)
         .execute(&mut *conn)
         .await

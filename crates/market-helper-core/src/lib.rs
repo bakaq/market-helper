@@ -57,7 +57,11 @@ impl From<ItemDescription> for ItemData {
 pub struct NutritionalTable {
     pub portion_weight: f64,
     pub calories: f64,
+    pub carbohidrates: f64,
     pub protein: f64,
+    pub total_fat: f64,
+    pub saturated_fat: f64,
+    pub fiber: f64,
 }
 
 impl NutritionalTable {
@@ -65,7 +69,11 @@ impl NutritionalTable {
         Self {
             portion_weight: weight,
             calories: self.calories / self.portion_weight * weight,
+            carbohidrates: self.carbohidrates / self.portion_weight * weight,
             protein: self.protein / self.portion_weight * weight,
+            total_fat: self.total_fat / self.portion_weight * weight,
+            saturated_fat: self.saturated_fat / self.portion_weight * weight,
+            fiber: self.fiber / self.portion_weight * weight,
         }
     }
 
@@ -73,15 +81,22 @@ impl NutritionalTable {
         Self {
             portion_weight: 1.0,
             calories: self.calories / self.portion_weight,
+            carbohidrates: self.carbohidrates / self.portion_weight,
             protein: self.protein / self.portion_weight,
+            total_fat: self.total_fat / self.portion_weight,
+            saturated_fat: self.saturated_fat / self.portion_weight,
+            fiber: self.fiber / self.portion_weight,
         }
     }
 
     pub fn prices(&self, price_per_gram: f64) -> NutritionalPrices {
         NutritionalPrices {
             calories: self.calories / self.portion_weight / price_per_gram,
-            //         g                    g                 R$/g
+            carbohidrates: self.carbohidrates / self.portion_weight / price_per_gram,
             protein: self.protein / self.portion_weight / price_per_gram,
+            total_fat: self.total_fat / self.portion_weight / price_per_gram,
+            saturated_fat: self.saturated_fat / self.portion_weight / price_per_gram,
+            fiber: self.fiber / self.portion_weight / price_per_gram,
         }
     }
 }
@@ -89,5 +104,9 @@ impl NutritionalTable {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct NutritionalPrices {
     pub calories: f64,
+    pub carbohidrates: f64,
     pub protein: f64,
+    pub total_fat: f64,
+    pub saturated_fat: f64,
+    pub fiber: f64,
 }

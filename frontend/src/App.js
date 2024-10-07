@@ -14,9 +14,12 @@ const fields = {
   price: "Price",
   portionWeight: "Portion weight",
   calories: "Calories",
+  carbohidrates: "Carbs",
   protein: "Protein",
+  totalFat: "Total Fat",
+  saturatedFat: "Saturated Fat",
+  fiber: "Fiber",
 };
-
 
 function App() {
   return (
@@ -53,10 +56,18 @@ function ItemList() {
         return a.item.name < b.item.name;
       case "price":
         return a.item.price < b.item.price;
-      case "protein_price":
-        return a.item.nutrition_prices.protein < b.item.nutrition_prices.protein;
       case "calories_price":
         return a.item.nutrition_prices.calories < b.item.nutrition_prices.calories;
+      case "carbohidrates_price":
+        return a.item.nutrition_prices.carbohidrates < b.item.nutrition_prices.carbohidrates;
+      case "protein_price":
+        return a.item.nutrition_prices.protein < b.item.nutrition_prices.protein;
+      case "total_fat_price":
+        return a.item.nutrition_prices.total_fat < b.item.nutrition_prices.total_fat;
+      case "saturated_fat_price":
+        return a.item.nutrition_prices.saturated_fat < b.item.nutrition_prices.saturated_fat;
+      case "fiber_price":
+        return a.item.nutrition_prices.fiber < b.item.nutrition_prices.fiber;
       default:
         return a.item.name < b.item.name;
     }
@@ -76,8 +87,12 @@ function ItemList() {
           <select value={sortKey} onChange={(e) => { setSortKey(e.target.value); getItems(); }}>
             <option value="name">Name</option>
             <option value="price">Price</option>
-            <option value="protein_price">Protein Price</option>
             <option value="calories_price">Calorie Price</option>
+            <option value="carbohidrate_price">Carbohidrate Price</option>
+            <option value="protein_price">Protein Price</option>
+            <option value="total_fat_price">Total Fat Price</option>
+            <option value="saturated_fat_price">Saturated Fat Price</option>
+            <option value="fiber_price">Fiber Price</option>
           </select>
           <select value={sortDir} onChange={(e) => { setSortDir(e.target.value); getItems(); }}>
             <option value="desc">Descending</option>
@@ -122,7 +137,11 @@ function AddForm({ setShow, getItems }) {
       nutrition: {
         portion_weight: parseFloat(inputs.portionWeight),
         calories: parseFloat(inputs.calories),
+        carbohidrates: parseFloat(inputs.carbohidrates),
         protein: parseFloat(inputs.protein),
+        total_fat: parseFloat(inputs.totalFat),
+        saturated_fat: parseFloat(inputs.saturatedFat),
+        fiber: parseFloat(inputs.fiber),
       },
     };
     await fetch(`${api_root()}/item/add`, {
@@ -197,7 +216,11 @@ function ItemEdit({ itemId, itemData, getItems, setEditing }) {
     weight: itemData.weight,
     portionWeight: itemData.nutrition.portion_weight,
     calories: itemData.nutrition.calories,
+    carbohidrates: itemData.nutrition.calories,
     protein: itemData.nutrition.protein,
+    totalFat: itemData.nutrition.total_fat,
+    saturatedFat: itemData.nutrition.saturated_fat,
+    fiber: itemData.nutrition.fiber,
   };
   const [inputs, setInputs] = useState(defaultInputs);
 
@@ -226,7 +249,11 @@ function ItemEdit({ itemId, itemData, getItems, setEditing }) {
         nutrition: {
           portion_weight: parseFloat(inputs.portionWeight),
           calories: parseFloat(inputs.calories),
+          carbohidrates: parseFloat(inputs.carbohidrates),
           protein: parseFloat(inputs.protein),
+          total_fat: parseFloat(inputs.totalFat),
+          saturated_fat: parseFloat(inputs.saturatedFat),
+          fiber: parseFloat(inputs.fiber),
         },
       }
     };
@@ -272,12 +299,20 @@ function NutritionalTable({ nutrition, nutritionPrices }) {
         <tr>
           <th>{nutrition.portion_weight.toPrecision(PRECISION)}g</th>
           <td>{nutrition.calories.toPrecision(PRECISION)}kcal</td>
+          <td>{nutrition.carbohidrates.toPrecision(PRECISION)}g</td>
           <td>{nutrition.protein.toPrecision(PRECISION)}g</td>
+          <td>{nutrition.total_fat.toPrecision(PRECISION)}g</td>
+          <td>{nutrition.saturated_fat.toPrecision(PRECISION)}g</td>
+          <td>{nutrition.fiber.toPrecision(PRECISION)}g</td>
         </tr>
         <tr>
           <th>Prices</th>
           <td>{nutritionPrices.calories.toPrecision(PRECISION)} kcal/R$</td>
+          <td>{nutritionPrices.carbohidrates.toPrecision(PRECISION)} g/R$</td>
           <td>{nutritionPrices.protein.toPrecision(PRECISION)} g/R$</td>
+          <td>{nutritionPrices.total_fat.toPrecision(PRECISION)} g/R$</td>
+          <td>{nutritionPrices.saturated_fat.toPrecision(PRECISION)} g/R$</td>
+          <td>{nutritionPrices.fiber.toPrecision(PRECISION)} g/R$</td>
         </tr>
       </tbody>
     </table>
