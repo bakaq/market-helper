@@ -12,11 +12,11 @@ use axum::{
     routing::get,
     Json, Router,
 };
-use tower_http::cors::{Any,CorsLayer};
 use serde::{Deserialize, Serialize};
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode};
 use sqlx::{ConnectOptions, Row, SqliteConnection};
 use tokio::sync::Mutex;
+use tower_http::cors::{Any, CorsLayer};
 
 use market_helper_core::{ItemData, ItemDescription, NutritionalTable};
 use serde_json::{json, Value};
@@ -44,7 +44,7 @@ async fn main() -> anyhow::Result<()> {
 
     let app_state = Arc::new(AppState::try_new().await?);
     // TODO: Use the right HTTP methods.
-    
+
     let cors = CorsLayer::new()
         .allow_methods([Method::GET, Method::POST])
         .allow_origin(Any);
