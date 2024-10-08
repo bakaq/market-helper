@@ -180,9 +180,9 @@ async fn update_item(
             portion_weight = $4,
             calories = $5,
             carbohidrates = $6,
-            protein = $7
-            total_fat = $8
-            saturated_fat = $9
+            protein = $7,
+            total_fat = $8,
+            saturated_fat = $9,
             fiber = $10
         WHERE id = $11;
     "#;

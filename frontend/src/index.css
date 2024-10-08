@@ -106,6 +106,12 @@ body {
   justify-content: flex-end;
 }
 
+.nutritional-tables {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: var(--padding);
+}
+
 .nutritional-table {
   border: 2px solid;
   border-radius: 3px;

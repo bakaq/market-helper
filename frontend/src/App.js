@@ -287,35 +287,56 @@ function ItemEdit({ itemId, itemData, getItems, setEditing }) {
 
 function NutritionalTable({ nutrition, nutritionPrices }) {
   return (
-    <table className="nutritional-table">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Calories</th>
-          <th>Protein</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>{nutrition.portion_weight.toPrecision(PRECISION)}g</th>
-          <td>{nutrition.calories.toPrecision(PRECISION)}kcal</td>
-          <td>{nutrition.carbohidrates.toPrecision(PRECISION)}g</td>
-          <td>{nutrition.protein.toPrecision(PRECISION)}g</td>
-          <td>{nutrition.total_fat.toPrecision(PRECISION)}g</td>
-          <td>{nutrition.saturated_fat.toPrecision(PRECISION)}g</td>
-          <td>{nutrition.fiber.toPrecision(PRECISION)}g</td>
-        </tr>
-        <tr>
-          <th>Prices</th>
-          <td>{nutritionPrices.calories.toPrecision(PRECISION)} kcal/R$</td>
-          <td>{nutritionPrices.carbohidrates.toPrecision(PRECISION)} g/R$</td>
-          <td>{nutritionPrices.protein.toPrecision(PRECISION)} g/R$</td>
-          <td>{nutritionPrices.total_fat.toPrecision(PRECISION)} g/R$</td>
-          <td>{nutritionPrices.saturated_fat.toPrecision(PRECISION)} g/R$</td>
-          <td>{nutritionPrices.fiber.toPrecision(PRECISION)} g/R$</td>
-        </tr>
-      </tbody>
-    </table>
+    <div className="nutritional-tables">
+      <table className="nutritional-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Calories</th>
+            <th>Carbs</th>
+            <th>Protein</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>{nutrition.portion_weight.toPrecision(PRECISION)}g</th>
+            <td>{nutrition.calories.toPrecision(PRECISION)}kcal</td>
+            <td>{nutrition.carbohidrates.toPrecision(PRECISION)}g</td>
+            <td>{nutrition.protein.toPrecision(PRECISION)}g</td>
+          </tr>
+          <tr>
+            <th>Prices</th>
+            <td>{nutritionPrices.calories.toPrecision(PRECISION)} kcal/R$</td>
+            <td>{nutritionPrices.carbohidrates.toPrecision(PRECISION)} g/R$</td>
+            <td>{nutritionPrices.protein.toPrecision(PRECISION)} g/R$</td>
+          </tr>
+        </tbody>
+      </table>
+      <table className="nutritional-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Total Fat</th>
+            <th>Saturated Fat</th>
+            <th>Fiber</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>{nutrition.portion_weight.toPrecision(PRECISION)}g</th>
+            <td>{nutrition.total_fat.toPrecision(PRECISION)}g</td>
+            <td>{nutrition.saturated_fat.toPrecision(PRECISION)}g</td>
+            <td>{nutrition.fiber.toPrecision(PRECISION)}g</td>
+          </tr>
+          <tr>
+            <th>Prices</th>
+            <td>{nutritionPrices.total_fat.toPrecision(PRECISION)} g/R$</td>
+            <td>{nutritionPrices.saturated_fat.toPrecision(PRECISION)} g/R$</td>
+            <td>{nutritionPrices.fiber.toPrecision(PRECISION)} g/R$</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   )
 }
 
