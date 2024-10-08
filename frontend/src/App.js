@@ -194,12 +194,15 @@ function ItemCard({ itemId, itemData, getItems }) {
       :
       (
         <div className="item-card">
-          <div className="item-card-header">
             <h3>{itemData.name}</h3>
+          <div className="item-card-header">
             <div className="item-price">R$ {itemData.price.toFixed(2)}</div>
             <div className="item-weight">{itemData.weight.toPrecision(PRECISION)}g</div>
           </div>
-          <NutritionalTable nutrition={itemData.nutrition} nutritionPrices={itemData.nutrition_prices} />
+          <details>
+            <summary>Nutritional Table</summary>
+            <NutritionalTable nutrition={itemData.nutrition} nutritionPrices={itemData.nutrition_prices} />
+          </details>
           <div className="item-card-footer">
             <button onClick={() => setEditing(true)}>Edit</button>
             <button onClick={() => { removeItem(); }}>Remove</button>
