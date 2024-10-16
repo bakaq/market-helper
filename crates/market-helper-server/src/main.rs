@@ -1,6 +1,7 @@
 #![allow(dead_code, unused_imports)]
 
 use std::collections::{HashMap, HashSet};
+use std::env;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -29,7 +30,9 @@ struct AppState {
 
 impl AppState {
     async fn try_new() -> anyhow::Result<Self> {
-        let connection = SqliteConnectOptions::from_str("sqlite://database/market_helper.db")?
+        let database_url =
+            env::var("DATABASE_URL").unwrap_or("sqlite://database/market_helper.db".into());
+        let connection = SqliteConnectOptions::from_str(&database_url)?
             .journal_mode(SqliteJournalMode::Wal)
             .connect()
             .await?;
@@ -59,7 +62,8 @@ async fn main() -> anyhow::Result<()> {
         .layer(cors)
         .layer(TraceLayer::new_for_http());
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await?;
+    let port = env::var("PORT").unwrap_or("8000".into());
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}")).await?;
     axum::serve(listener, app).await?;
     Ok(())
 }
