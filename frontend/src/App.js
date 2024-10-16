@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 
-// TODO: Configure it at build-time
 function api_root() {
-  const hostname = window.location.hostname;
-  return `http://${hostname}:8000`;
+  return process.env.REACT_APP_API_ROOT || "http://localhost:8000";
 }
 
 const PRECISION = 3;
@@ -194,7 +192,7 @@ function ItemCard({ itemId, itemData, getItems }) {
       :
       (
         <div className="item-card">
-            <h3>{itemData.name}</h3>
+          <h3>{itemData.name}</h3>
           <div className="item-card-header">
             <div className="item-price">R$ {itemData.price.toFixed(2)}</div>
             <div className="item-weight">{itemData.weight.toPrecision(PRECISION)}g</div>

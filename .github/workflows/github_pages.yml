@@ -1,0 +1,44 @@
+name: Deploy to Github Pages
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Configure Github Pages
+      uses: actions/configure-pages@v3
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@main
+    - name: npm install
+      working-directory: ./frontend
+      run: |
+        nix develop --command npm install
+    - name: Build
+      working-directory: ./frontend
+      env:
+        REACT_APP_API_ROOT: "https://api.bakaq.net/market-helper"
+      run: |
+        nix develop --command npm run build
+    - name: Upload Github Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: "./frontend/build/"
+  deploy:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{steps.deployment.outputs.page_url}}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Deploy to Github Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
