@@ -49,9 +49,7 @@ async fn main() -> anyhow::Result<()> {
     let app_state = Arc::new(AppState::try_new().await?);
     // TODO: Use the right HTTP methods.
 
-    let cors = CorsLayer::new()
-        .allow_methods([Method::GET, Method::POST])
-        .allow_origin(Any);
+    let cors = CorsLayer::permissive();
 
     let app = Router::new()
         .route("/item/get_all", get(get_items))
